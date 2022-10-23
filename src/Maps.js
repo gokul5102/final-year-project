@@ -12,12 +12,18 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import L, { Mixin } from "leaflet";
 import axios from "axios";
 import { EditControl } from "react-leaflet-draw";
 import swal from "sweetalert";
 import {
   polygon,
+  rectangle,
+  polygon1,
+  polygon2,
+  polygon3,
+  polygon4,
+  polygon5,
   // rectangle1,
   // rectangle2,
   // rectangle3,
@@ -58,13 +64,6 @@ function ResetCenterView(props) {
   return null;
 }
 
-const MapContent = ({ onDoubleClick }) => {
-  const map = useMapEvents({
-    dblclick: (event) => onDoubleClick(event),
-  });
-  return null;
-};
-
 const mapToArray = (arr = []) => {
   const res = [];
   arr.forEach(function (obj, index) {
@@ -83,47 +82,89 @@ function isMarkerInsidePolygon(poly) {
   a[0].push(a[0][0]);
   var b = polygon;
   b[0].push(b[0][0]);
+  var c = polygon1;
+  c[0].push(c[0][0]);
+  var d = polygon2;
+  d[0].push(d[0][0]);
+  var e = polygon3;
+  e[0].push(e[0][0]);
+  var f = polygon4;
+  f[0].push(f[0][0]);
+  var g = polygon5;
+  g[0].push(g[0][0]);
   var poly1 = turf.polygon(a);
   var poly2 = turf.polygon(b);
-  // var poly1 = turf.polygon([
-  //   [
-  //     [19.12133355062022, 72.83064707408777],
-  //     [19.12137299965453, 72.8383030263863],
-  //     [19.116285704382088, 72.83817835440408],
-  //     [19.116206801532657, 72.8296171058426],
-  //     [19.12133355062022, 72.83064707408777],
-  //   ],
-  // ]);
-  // var poly2 = turf.polygon([
-  //   [
-  //     [19.115036788632334, 72.83103188098573],
-  //     [19.123597173793122, 72.83296370179902],
-  //     [19.118972186634732, 72.83961775126707],
-  //     [19.114793358874977, 72.83549653353204],
-  //     [19.115036788632334, 72.83103188098573],
-  //   ],
-  // ]);
-  // var poly2 = turf.polygon([
-  //   [
-  //     [52.29480393096099, -0.52693675771061],
-  //     [52.32840592291985, 0.566559681324197],
-  //     [51.88280311296014, 0.5390848964238248],
-  //     [51.80470428587244, -0.5434216286508332],
-  //     [52.29480393096099, -0.52693675771061],
-  //   ],
-  // ]);
-  // console.log("13", poly1, poly2);
-  // console.log("1111", turf.booleanOverlap(poly1, poly2));
-  return turf.booleanOverlap(poly1, poly2);
+  var poly3 = turf.polygon(c);
+  var poly4 = turf.polygon(d);
+  var poly5 = turf.polygon(b);
+  var poly6 = turf.polygon(e);
+  var poly7 = turf.polygon(f);
+  var poly8 = turf.polygon(g);
+
+  console.log("1111", turf.booleanOverlap(poly1, poly2));
+  return (
+    turf.booleanOverlap(poly1, poly2) ||
+    turf.booleanOverlap(poly1, poly3) ||
+    turf.booleanOverlap(poly1, poly3) ||
+    turf.booleanOverlap(poly1, poly4) ||
+    turf.booleanOverlap(poly1, poly5) ||
+    turf.booleanOverlap(poly1, poly6) ||
+    turf.booleanOverlap(poly1, poly7) ||
+    turf.booleanOverlap(poly1, poly8)
+  );
+}
+
+function isPointInPoly(pt, poly) {
+  poly = poly[0];
+  if()
+  for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+    ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
+      (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
+      pt[0] <
+        ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) /
+          (poly[j][1] - poly[i][1]) +
+          poly[i][0] &&
+      (c = !c);
+  if (c) {
+    swal({
+      title: "Success",
+      text: "Your current location lies within the boundaries of Gulmohar Colony",
+      icon: "success",
+    });
+  } else {
+    swal({
+      title: "Incorrect",
+      text: "Your current location does not lie within the boundaries of Gulmohar Colony",
+      icon: "error",
+    });
+  }
 }
 export default function Maps(props) {
   const { selectPosition } = props;
   const [map, setMap] = useState({ lat: 0, lng: 0 });
+  const [checkPointX, setCheckPointX] = useState(null);
+  const [checkPointY, setCheckPointY] = useState(null);
   const [mapLayers, setMapLayers] = useState([]);
   const [editableFG, setEditableFG] = useState(null);
   const locationSelection = [selectPosition?.lat, selectPosition?.lon];
   const purpleOptions = { color: "purple" };
+  const blueOptions = { color: "blue" };
+  const blackOptions = { color: "black" };
+  const yellowOptions = { color: "yellow" };
+  const orangeOptions = { color: "orange" };
+  const limeOptions = { color: "lime" };
   const mapRef = useRef();
+
+  const MapContent = ({ onDoubleClick }) => {
+    const map = useMapEvents({
+      dblclick: (event) => {
+        onDoubleClick(event);
+        setCheckPointX(event.latlng.lat);
+        setCheckPointY(event.latlng.lng);
+      },
+    });
+    return null;
+  };
 
   useEffect(() => {
     // console.log("useEffect");
@@ -168,6 +209,10 @@ export default function Maps(props) {
     }
   }, [mapLayers]);
 
+  useEffect(() => {
+    isPointInPoly([checkPointX, checkPointY], polygon);
+  }, [checkPointX]);
+
   const helper = (event) => {
     console.log(event.latlng.lat, event.latlng.lng);
     setMap({ lat: event.latlng.lat, lng: event.latlng.lng });
@@ -189,7 +234,8 @@ export default function Maps(props) {
         ...layers,
         { id: _leaflet_id, latlngs: layer.getLatLngs()[0] },
       ]);
-      // console.log(4, mapLayers.length);
+      console.log(4, layer.getLatLngs());
+
       if (isMarkerInsidePolygon(layer.getLatLngs()[0]) == true) {
         swal({
           title: "Wrong!",
@@ -204,19 +250,6 @@ export default function Maps(props) {
         setMapLayers(m);
         console.log("Done!!");
       }
-      // else if (CheckDrawnPolygonsOverlap() == true) {
-      //   swal({
-      //     title: "Wrong!",
-      //     text: "Your entered locality is invalid!",
-      //     icon: "error",
-      //   });
-      // } else {
-      //   swal({
-      //     title: "Sucess!",
-      //     text: "Your entered locality is valid and saved successfully!",
-      //     icon: "success",
-      //   });
-      // }
     }
   };
 
@@ -257,7 +290,7 @@ export default function Maps(props) {
           url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=mIMLHCmBJULiiogMvjQF"
         />
         <MapContent onDoubleClick={helper} />
-        <FeatureGroup pathOptions={purpleOptions}>
+        <FeatureGroup>
           <Popup>
             Gulmohar Colony
             <br /> Juhu,Mumbai,Maharashtra,400047.
@@ -265,6 +298,44 @@ export default function Maps(props) {
           {/* <Rectangle bounds={rectangle} /> */}
           <Polygon pathOptions={purpleOptions} positions={polygon} />
         </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            Gulmohar Colony
+            <br /> Juhu,Mumbai,Maharashtra,400047.
+          </Popup>
+          <Polygon pathOptions={limeOptions} positions={polygon1} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            Ghatkopar
+            <br />
+            Mumbai,Maharashtra,400005.
+          </Popup>
+          <Polygon pathOptions={blueOptions} positions={polygon2} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            Azad Nagar
+            <br /> Andheri West,Mumbai,Maharashtra,400049.
+          </Popup>
+          <Polygon pathOptions={orangeOptions} positions={polygon3} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            DN Nagar
+            <br /> Andheri West,Maharashtra,400003.
+          </Popup>
+          <Polygon pathOptions={yellowOptions} positions={polygon4} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            Versova
+            <br />
+            Mumbai,Maharashtra,400001.
+          </Popup>
+          <Polygon pathOptions={blackOptions} positions={polygon5} />
+        </FeatureGroup>
+
         <FeatureGroup
           ref={(featureGroupRef) => {
             onFeatureGroupReady(featureGroupRef);
