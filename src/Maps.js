@@ -37,7 +37,15 @@ const icon = L.icon({
   iconUrl: "./placeholder.png",
   iconSize: [38, 38],
 });
-
+const polyArray = {
+  "Gulmohar Colony": polygon,
+  "Saki Naka": polygon1,
+  "Ghatkopar":polygon2,
+  "Azad Nagar":polygon3,
+  "DN Nagar":polygon4,
+  "Versova":polygon5
+}
+// const polyArray = [polygon,polygon1,polygon2,polygon3,polygon4,polygon5]
 const marker = L.icon({
   iconUrl: "./marker.png",
   iconSize: [38, 38],
@@ -114,6 +122,28 @@ function isMarkerInsidePolygon(poly) {
   );
 }
 
+function checkWhichRegionItLies(pt) {
+  var c = 0
+  for(const place in polyArray){
+    if(isPointInPoly(pt,polyArray[place])){
+      c=1
+      swal({
+            title: "Success",
+            text: `Lies within ${place}`,
+            icon: "success",
+          });
+          break
+    }
+  }
+  if(!c){
+    swal({
+          title: "Incorrect",
+          text: "Your current location does not lie within nmarked boundaries",
+          icon: "error",
+        });
+  }
+}
+
 function isPointInPoly(pt, poly) {
   poly = poly[0];
   if (poly)
@@ -125,19 +155,20 @@ function isPointInPoly(pt, poly) {
             (poly[j][1] - poly[i][1]) +
             poly[i][0] &&
         (c = !c);
-  if (c) {
-    swal({
-      title: "Success",
-      text: "Your current location lies within the boundaries of Gulmohar Colony",
-      icon: "success",
-    });
-  } else {
-    swal({
-      title: "Incorrect",
-      text: "Your current location does not lie within the boundaries of Gulmohar Colony",
-      icon: "error",
-    });
-  }
+  // if (c) {
+  //   swal({
+  //     title: "Success",
+  //     text: "Your current location lies within the boundaries of Gulmohar Colony",
+  //     icon: "success",
+  //   });
+  // } else {
+  //   swal({
+  //     title: "Incorrect",
+  //     text: "Your current location does not lie within the boundaries of Gulmohar Colony",
+  //     icon: "error",
+  //   });
+  // }
+  return c
 }
 export default function Maps(props) {
   const { selectPosition } = props;
@@ -210,7 +241,7 @@ export default function Maps(props) {
   }, [mapLayers]);
 
   useEffect(() => {
-    isPointInPoly([checkPointX, checkPointY], polygon);
+    checkWhichRegionItLies([checkPointX, checkPointY]);
   }, [checkPointX]);
 
   const helper = (event) => {
