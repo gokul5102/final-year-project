@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SearchBox from "./SearchBox";
 import Maps from "./Maps";
+
 import DrawMap from "./DrawMap";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
     >
       <div style={{ width: "50vw", height: "100vh" }}>
         <Maps selectPosition={selectPosition} />
+
         {/* <DrawMap /> */}
       </div>
       <div style={{ border: "2px solid red", width: "50vw" }}>

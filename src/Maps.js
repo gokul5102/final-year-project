@@ -15,6 +15,7 @@ import "leaflet/dist/leaflet.css";
 import L, { Mixin } from "leaflet";
 import axios from "axios";
 import { EditControl } from "react-leaflet-draw";
+import TransitionsModal from "./Modal";
 import swal from "sweetalert";
 import {
   polygon,
@@ -40,11 +41,11 @@ const icon = L.icon({
 const polyArray = {
   "Gulmohar Colony": polygon,
   "Saki Naka": polygon1,
-  "Ghatkopar":polygon2,
-  "Azad Nagar":polygon3,
-  "DN Nagar":polygon4,
-  "Versova":polygon5
-}
+  Ghatkopar: polygon2,
+  "Azad Nagar": polygon3,
+  "DN Nagar": polygon4,
+  Versova: polygon5,
+};
 // const polyArray = [polygon,polygon1,polygon2,polygon3,polygon4,polygon5]
 const marker = L.icon({
   iconUrl: "./marker.png",
@@ -123,24 +124,24 @@ function isMarkerInsidePolygon(poly) {
 }
 
 function checkWhichRegionItLies(pt) {
-  var c = 0
-  for(const place in polyArray){
-    if(isPointInPoly(pt,polyArray[place])){
-      c=1
+  var c = 0;
+  for (const place in polyArray) {
+    if (isPointInPoly(pt, polyArray[place])) {
+      c = 1;
       swal({
-            title: "Success",
-            text: `Lies within ${place}`,
-            icon: "success",
-          });
-          break
+        title: "Success",
+        text: `Lies within ${place}`,
+        icon: "success",
+      });
+      break;
     }
   }
-  if(!c){
+  if (!c) {
     swal({
-          title: "Incorrect",
-          text: "Your current location does not lie within nmarked boundaries",
-          icon: "error",
-        });
+      title: "Incorrect",
+      text: "Your current location does not lie within nmarked boundaries",
+      icon: "error",
+    });
   }
 }
 
@@ -168,7 +169,7 @@ function isPointInPoly(pt, poly) {
   //     icon: "error",
   //   });
   // }
-  return c
+  return c;
 }
 export default function Maps(props) {
   const { selectPosition } = props;
@@ -321,6 +322,19 @@ export default function Maps(props) {
           url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=mIMLHCmBJULiiogMvjQF"
         />
         <MapContent onDoubleClick={helper} />
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "10%",
+            transform: "translate(-50%, -50%)",
+            // border: "5px solid #FFFF00",
+            padding: "5px",
+            zIndex: "1000",
+          }}
+        >
+          <TransitionsModal />
+        </div>
         <FeatureGroup>
           <Popup>
             Gulmohar Colony
@@ -331,7 +345,7 @@ export default function Maps(props) {
         </FeatureGroup>
         <FeatureGroup>
           <Popup>
-            Gulmohar Colony
+            Saki Naka
             <br /> Juhu,Mumbai,Maharashtra,400047.
           </Popup>
           <Polygon pathOptions={limeOptions} positions={polygon1} />
