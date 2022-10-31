@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import axios from "axios";
+import checkWhichRegionItLies from "./Maps.js";
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -22,6 +24,8 @@ const useStyles = makeStyles((theme) => ({
 export default function TransitionsModal() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [address, setAddress] = useState("");
+  const [coordinates, setCoordinates] = useState([]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -29,6 +33,34 @@ export default function TransitionsModal() {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const helper = () => {
+    console.log(address);
+    const options = {
+      method: "GET",
+      url: "https://address-from-to-latitude-longitude.p.rapidapi.com/geolocationapi",
+      params: { address: address },
+      headers: {
+        "X-RapidAPI-Key": "93a91c5481msh60191a114918ae1p137fa6jsn3b0d190e144d",
+        "X-RapidAPI-Host": "address-from-to-latitude-longitude.p.rapidapi.com",
+      },
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data?.Results[0]);
+        if (response.data) {
+          setCoordinates([
+            response.data?.Results[0].latitude,
+            response.data?.Results[0].longitude,
+          ]);
+        }
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
   };
 
   return (
@@ -57,9 +89,17 @@ export default function TransitionsModal() {
           <div className={classes.paper}>
             <h2 id="transition-modal-title">Enter your address</h2>
             <p id="transition-modal-description">
-              <TextField label="Address" variant="filled" />
+              <TextField
+                label="Address"
+                variant="filled"
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                }}
+              />
             </p>
-            <Button color="primary">Find</Button>
+            <Button color="primary" onClick={helper}>
+              Find
+            </Button>
           </div>
         </Fade>
       </Modal>

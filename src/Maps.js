@@ -123,7 +123,7 @@ function isMarkerInsidePolygon(poly) {
   );
 }
 
-function checkWhichRegionItLies(pt) {
+export function checkWhichRegionItLies(pt) {
   var c = 0;
   for (const place in polyArray) {
     if (isPointInPoly(pt, polyArray[place])) {
@@ -156,19 +156,6 @@ function isPointInPoly(pt, poly) {
             (poly[j][1] - poly[i][1]) +
             poly[i][0] &&
         (c = !c);
-  // if (c) {
-  //   swal({
-  //     title: "Success",
-  //     text: "Your current location lies within the boundaries of Gulmohar Colony",
-  //     icon: "success",
-  //   });
-  // } else {
-  //   swal({
-  //     title: "Incorrect",
-  //     text: "Your current location does not lie within the boundaries of Gulmohar Colony",
-  //     icon: "error",
-  //   });
-  // }
   return c;
 }
 export default function Maps(props) {
