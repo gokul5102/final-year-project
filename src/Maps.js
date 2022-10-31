@@ -229,7 +229,7 @@ export default function Maps(props) {
   }, [mapLayers]);
 
   useEffect(() => {
-    checkWhichRegionItLies([checkPointX, checkPointY]);
+    checkPointX && checkWhichRegionItLies([checkPointX, checkPointY]);
   }, [checkPointX]);
 
   const helper = (event) => {
