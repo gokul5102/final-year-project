@@ -139,7 +139,7 @@ export default function TransitionsModal() {
         type="button"
         onClick={handleOpen}
       >
-        Click here
+        Find location
       </Button>
       <Modal
         aria-labelledby="transition-modal-title"

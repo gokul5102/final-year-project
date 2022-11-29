@@ -16,6 +16,7 @@ import L, { Mixin } from "leaflet";
 import axios from "axios";
 import { EditControl } from "react-leaflet-draw";
 import TransitionsModal from "./Modal";
+import AssetModal from "./Modal1";
 import swal from "sweetalert";
 import {
   polygon,
@@ -228,6 +229,33 @@ export default function Maps(props) {
         text: "Your entered locality is invalid!",
         icon: "error",
       });
+    } else {
+      console.log("m", mapLayers);
+      const sz = mapLayers.length;
+      if (sz > 0) {
+        const data = {
+          id: mapLayers[sz - 1].id,
+          color: "blue",
+          // size: "20",
+          latlng: mapLayers[sz - 1].lngs,
+          owner: "George",
+          appraisedValue: "20000",
+        };
+        fetch("http://localhost:5000/createAsset", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
     }
   }, [mapLayers]);
 
@@ -235,6 +263,55 @@ export default function Maps(props) {
     checkPointX && checkWhichRegionItLies([checkPointX, checkPointY]);
   }, [checkPointX]);
 
+  //   API Endpoints for hyperledger fabric:
+
+  // http://localhost:5000/getAllAssets : GET
+
+  // http://localhost:5000/createAsset : POST
+  // body :
+  // {
+  //     "id":"asset11",
+  //     "color":"red",
+  //     "size":"20",
+  //     "owner":"George",
+  //     "appraisedValue":"20000"
+  // }
+
+  // http://localhost:5000/getAsset : GET
+  // Body:
+  // {
+  //     "id":"asset4"
+  // }
+
+  // http://localhost:5000/updateAsset: PATCH
+  // Body:
+  // same as post
+
+  // http://localhost:5000/transferAsset: PATCH
+  // Body:
+  // {
+  //     "id":"asset10",
+  //     "newOwner":"Jack"
+  // }
+  useEffect(() => {
+    fetch("http://localhost:5000/getAllAssets")
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+    // fetch("http://localhost:5000/getAllAssets", {
+    //   method: "POST", // or 'PUT'
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log("Success:", data);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error:", error);
+    //   });
+  }, []);
   const helper = (event) => {
     console.log(event.latlng.lat, event.latlng.lng);
     setMap({ lat: event.latlng.lat, lng: event.latlng.lng });
@@ -254,7 +331,7 @@ export default function Maps(props) {
       console.log(3, drawnItems);
       setMapLayers((layers) => [
         ...layers,
-        { id: _leaflet_id, latlngs: layer.getLatLngs()[0] },
+        { id: _leaflet_id, latlngs: layer.getLatLngs()[0], owner: "Gokul" },
       ]);
       console.log(4, layer.getLatLngs());
 
@@ -284,15 +361,38 @@ export default function Maps(props) {
     let arr = layers._layers[_leaflet_id].editing.latlngs[0][0];
     console.log(225, editableFG);
     const drawnItems = editableFG._layers;
-    console.log(300, drawnItems);
+    console.log(300, drawnItems[_leaflet_id]._latlngs[0], _leaflet_id);
     if (isMarkerInsidePolygon(arr) == true) {
       const layer = drawnItems[_leaflet_id];
       console.log(400, layer);
       editableFG.removeLayer(layer);
       let m = mapLayers.filter((ele) => ele.id != _leaflet_id);
       setMapLayers(m);
+      // console.log("m1", m);
       console.log("Done!!");
     }
+    const data = {
+      id: _leaflet_id,
+      color: "blue",
+      // size: "20",
+      latlng: drawnItems[_leaflet_id]._latlngs[0],
+      owner: "George",
+      appraisedValue: "10000",
+    };
+    fetch("http://localhost:5000/updateAsset", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   const _onDeleted = (e) => {
@@ -325,6 +425,20 @@ export default function Maps(props) {
         >
           <TransitionsModal />
         </div>
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "20%",
+            transform: "translate(-50%, -50%)",
+            // border: "5px solid #FFFF00",
+            padding: "5px",
+            zIndex: "1000",
+          }}
+        >
+          <AssetModal />
+        </div>
+
         <FeatureGroup>
           <Popup>
             Gulmohar Colony
