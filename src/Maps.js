@@ -25,6 +25,13 @@ import {
   polygon3,
   polygon4,
   polygon5,
+  polygon6,
+  polygon7,
+  polygon8,
+  polygon9,
+  polygon10,
+  polygon11,
+  polygon12,
   // rectangle1,
   // rectangle2,
   // rectangle3,
@@ -45,8 +52,14 @@ const polyArray = {
   "Azad Nagar": polygon3,
   "DN Nagar": polygon4,
   Versova: polygon5,
+  A: polygon6,
+  B:polygon7,
+  C:polygon8,
+  D:polygon9,
+  E:polygon10,
+  F:polygon11,
+  G:polygon12,
 };
-// const polyArray = [polygon,polygon1,polygon2,polygon3,polygon4,polygon5]
 const marker = L.icon({
   iconUrl: "./marker.png",
   iconSize: [38, 38],
@@ -101,6 +114,18 @@ function isMarkerInsidePolygon(poly) {
   f[0].push(f[0][0]);
   var g = polygon5;
   g[0].push(g[0][0]);
+  var h = polygon6;
+  h[0].push(h[0][0]);
+  var i = polygon7;
+  i[0].push(i[0][0]);
+  var j = polygon8;
+  j[0].push(j[0][0]);
+  var k = polygon9;
+  k[0].push(k[0][0]);
+  var l = polygon10;
+  l[0].push(l[0][0]);
+  var m = polygon11;
+  m[0].push(m[0][0]);
   var poly1 = turf.polygon(a);
   var poly2 = turf.polygon(b);
   var poly3 = turf.polygon(c);
@@ -109,6 +134,9 @@ function isMarkerInsidePolygon(poly) {
   var poly6 = turf.polygon(e);
   var poly7 = turf.polygon(f);
   var poly8 = turf.polygon(g);
+  var poly9 = turf.polygon(h);
+  var poly10 = turf.polygon(i);
+  var poly11 = turf.polygon(j);
 
   console.log("1111", turf.booleanOverlap(poly1, poly2));
   return (
@@ -124,9 +152,22 @@ function isMarkerInsidePolygon(poly) {
 }
 
 export function checkWhichRegionItLies(pt) {
+  console.time('Function #1')
   var c = 0;
+  var side = 0.0063072257559185
+  var poly1 = turf.polygon([[[pt[0] + side,pt[1]+side],[pt[0]+side,pt[1]-side],[pt[0]-side,pt[1]+side],[pt[0]-side,pt[1]-side],[pt[0] + side,pt[1]+side]]])
+  
   for (const place in polyArray) {
-    if (isPointInPoly(pt, polyArray[place])) {
+    var tmp = []
+    tmp = polyArray[place][0]
+    tmp.push(polyArray[place][0][0])
+    var b = turf.polygon([tmp])
+    if (
+      turf.booleanOverlap(poly1,b) &&
+       isPointInPoly(pt, polyArray[place])
+      // turf.booleanPointInPolygon(pt,b)
+       ) 
+       {
       c = 1;
       swal({
         title: "Success",
@@ -143,23 +184,60 @@ export function checkWhichRegionItLies(pt) {
       icon: "error",
     });
   }
+  console.timeEnd('Function #1')
 }
 
 function isPointInPoly(pt, poly) {
-  poly = poly[0];
-  var winding_no = 0;
-  if (poly) {
-    for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-      ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
-        (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
-        pt[0] <
-          ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) /
-            (poly[j][1] - poly[i][1]) +
-            poly[i][0] &&
-        (c = !c);
-    winding_no += 1;
-  } else winding_no -= 1;
-  return c;
+
+  var res =  a(pt,poly)
+  if(res == 0){
+    return false
+  } 
+  return true
+  // poly = poly[0];
+  // console.log('new',poly)
+  // var winding_no = 0;
+  // if (poly) {
+  //   for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+  //     ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
+  //       (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
+  //       pt[0] <
+  //         ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) /
+  //           (poly[j][1] - poly[i][1]) +
+  //           poly[i][0] &&
+  //       (c = !c);
+  //   winding_no += 1;
+  // } else winding_no -= 1;
+  // return c;
+}
+function isLeft(p0,p1,p2){
+  return ((p1[0] - p0[0])*(p2[1] - p0[1]) - (p2[0] - p0[0])*(p1[1] - p0[1]))
+}
+
+function a(pt,poly) {
+  poly = poly[0]
+  var poly1 = []
+  poly1 = poly
+  poly1.push(poly[0])
+  var winding_no = 0
+  for (var c = 0;c<poly1.length-1;c++){
+    if(poly1[c][1] <= pt[1]){
+      if(poly1[c+1][1] > pt[1]){
+        if(isLeft(poly1[c],poly1[c+1],pt) > 0){
+          winding_no++
+        }
+      }
+    }else{
+      if(poly1[c+1][1] <= pt[1]){
+        if(isLeft(poly1[c],poly1[c+1],pt) < 0){
+          winding_no--
+        }
+      }
+    }
+  }
+
+  poly1 = []
+  return winding_no
 }
 export default function Maps(props) {
   const { selectPosition } = props;
@@ -234,6 +312,7 @@ export default function Maps(props) {
   useEffect(() => {
     checkPointX && checkWhichRegionItLies([checkPointX, checkPointY]);
   }, [checkPointX]);
+
 
   const helper = (event) => {
     console.log(event.latlng.lat, event.latlng.lng);
@@ -369,6 +448,62 @@ export default function Maps(props) {
             Mumbai,Maharashtra,400001.
           </Popup>
           <Polygon pathOptions={blackOptions} positions={polygon5} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            A
+            <br />
+            Mumbai,Maharashtra,400001.
+          </Popup>
+          <Polygon pathOptions={blueOptions} positions={polygon6} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            B
+            <br />
+            Mumbai,Maharashtra,400001
+          </Popup>
+          <Polygon pathOptions={limeOptions} positions={polygon7} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            C
+            <br />
+            Mumbai,Maharashtra,400001
+          </Popup>
+          <Polygon pathOptions={yellowOptions} positions={polygon8} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            D
+            <br />
+            Mumbai,Maharashtra,400001
+          </Popup>
+          <Polygon pathOptions={orangeOptions} positions={polygon9} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            E
+            <br />
+            Mumbai,Maharashtra,400001
+          </Popup>
+          <Polygon pathOptions={purpleOptions} positions={polygon10} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            F
+            <br />
+            Mumbai,Maharashtra,400001
+          </Popup>
+          <Polygon pathOptions={blackOptions} positions={polygon11} />
+        </FeatureGroup>
+        <FeatureGroup>
+          <Popup>
+            G
+            <br />
+            Mumbai,Maharashtra,400001
+          </Popup>
+          <Polygon pathOptions={limeOptions} positions={polygon12} />
         </FeatureGroup>
 
         <FeatureGroup
