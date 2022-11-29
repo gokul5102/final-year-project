@@ -139,7 +139,7 @@ export function checkWhichRegionItLies(pt) {
   if (!c) {
     swal({
       title: "Incorrect",
-      text: "Your current location does not lie within nmarked boundaries",
+      text: "Your current location does not lie within marked boundaries",
       icon: "error",
     });
   }
@@ -147,7 +147,8 @@ export function checkWhichRegionItLies(pt) {
 
 function isPointInPoly(pt, poly) {
   poly = poly[0];
-  if (poly)
+  var winding_no = 0;
+  if (poly) {
     for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
       ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
         (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
@@ -156,6 +157,8 @@ function isPointInPoly(pt, poly) {
             (poly[j][1] - poly[i][1]) +
             poly[i][0] &&
         (c = !c);
+    winding_no += 1;
+  } else winding_no -= 1;
   return c;
 }
 export default function Maps(props) {

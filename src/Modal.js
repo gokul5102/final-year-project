@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -43,9 +43,14 @@ export default function TransitionsModal() {
   const [address, setAddress] = useState("");
   const [coordinates, setCoordinates] = useState();
 
-  useEffect (()=>{
-    coordinates && checkWhichRegionItLies(coordinates)
-  },[coordinates])
+  useEffect(() => {
+    coordinates &&
+      swal({
+        title: "Success",
+        text: `Your co-ordinates are as follows- latitude: ${coordinates[0]} longitude: ${coordinates[1]}`,
+        icon: "success",
+      });
+  }, [coordinates]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -83,7 +88,7 @@ export default function TransitionsModal() {
       });
     }
   }
-  
+
   function isPointInPoly(pt, poly) {
     poly = poly[0];
     if (poly)
