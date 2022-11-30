@@ -216,7 +216,7 @@ export default function Maps(props) {
               editableFG.removeLayer(layer);
               mapLayers.splice(j, 1);
               return true;
-              // console.log("Done2!!", mapLayers.length);
+              console.log("Done2!!", mapLayers.length);
             }
           }
         }
