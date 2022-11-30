@@ -1,38 +1,14 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMap,
-  FeatureGroup,
-  Circle,
-  Rectangle,
-  Polygon,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap, FeatureGroup, Circle, Rectangle, Polygon, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L, { Mixin } from "leaflet";
 import axios from "axios";
 import { EditControl } from "react-leaflet-draw";
 import TransitionsModal from "./Modal";
 import AssetModal from "./Modal1";
+import randomColor from "randomcolor";
 import swal from "sweetalert";
-import {
-  polygon,
-  rectangle,
-  polygon1,
-  polygon2,
-  polygon3,
-  polygon4,
-  polygon5,
-  // rectangle1,
-  // rectangle2,
-  // rectangle3,
-  // rectangle4,
-  // rectangle5,
-  // rectangle6,
-} from "./coordinates";
+import { polygon, rectangle, polygon1, polygon2, polygon3, polygon4, polygon5 } from "../constants/coordinates";
 import * as turf from "@turf/turf";
 import booleanOverlap from "@turf/boolean-overlap";
 const icon = L.icon({
@@ -61,13 +37,9 @@ function ResetCenterView(props) {
 
   useEffect(() => {
     if (selectPosition) {
-      map.setView(
-        L.latLng(selectPosition?.lat, selectPosition?.lon),
-        map.getZoom(),
-        {
-          animate: true,
-        }
-      );
+      map.setView(L.latLng(selectPosition?.lat, selectPosition?.lon), map.getZoom(), {
+        animate: true,
+      });
     }
   }, [selectPosition]);
 
@@ -124,10 +96,31 @@ function isMarkerInsidePolygon(poly) {
   );
 }
 
-export function checkWhichRegionItLies(pt) {
+export function checkWhichRegionItLies(pt, allAssets) {
+  console.time("Function #1");
   var c = 0;
-  for (const place in polyArray) {
-    if (isPointInPoly(pt, polyArray[place])) {
+  var side = 0.0063072257559185;
+  var poly1 = turf.polygon([
+    [
+      [pt[0] + side, pt[1] + side],
+      [pt[0] + side, pt[1] - side],
+      [pt[0] - side, pt[1] + side],
+      [pt[0] - side, pt[1] - side],
+      [pt[0] + side, pt[1] + side],
+    ],
+  ]);
+
+  for (var i = 0; i < allAssets.length; i++) {
+    const place = allAssets[i];
+    console.log("all assets : ", place);
+    const coordinates = JSON.parse(place.borderCoordinates);
+    var tmp = [];
+    tmp = JSON.parse(place.borderCoordinates);
+    tmp.push(tmp[0]);
+
+    console.log(tmp);
+    var b = turf.polygon([tmp]);
+    if (turf.booleanOverlap(poly1, b) && isPointInPoly(pt, [coordinates])) {
       c = 1;
       swal({
         title: "Success",
@@ -144,24 +137,46 @@ export function checkWhichRegionItLies(pt) {
       icon: "error",
     });
   }
+  console.timeEnd("Function #1");
 }
 
 function isPointInPoly(pt, poly) {
-  poly = poly[0];
-  var winding_no = 0;
-  if (poly) {
-    for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-      ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
-        (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
-        pt[0] <
-          ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) /
-            (poly[j][1] - poly[i][1]) +
-            poly[i][0] &&
-        (c = !c);
-    winding_no += 1;
-  } else winding_no -= 1;
-  return c;
+  var res = a(pt, poly);
+  if (res == 0) {
+    return false;
+  }
+  return true;
 }
+function isLeft(p0, p1, p2) {
+  return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p2[0] - p0[0]) * (p1[1] - p0[1]);
+}
+
+function a(pt, poly) {
+  poly = poly[0];
+  var poly1 = [];
+  poly1 = poly;
+  poly1.push(poly[0]);
+  var winding_no = 0;
+  for (var c = 0; c < poly1.length - 1; c++) {
+    if (poly1[c][1] <= pt[1]) {
+      if (poly1[c + 1][1] > pt[1]) {
+        if (isLeft(poly1[c], poly1[c + 1], pt) > 0) {
+          winding_no++;
+        }
+      }
+    } else {
+      if (poly1[c + 1][1] <= pt[1]) {
+        if (isLeft(poly1[c], poly1[c + 1], pt) < 0) {
+          winding_no--;
+        }
+      }
+    }
+  }
+
+  poly1 = [];
+  return winding_no;
+}
+
 export default function Maps(props) {
   const { selectPosition } = props;
   const [map, setMap] = useState({ lat: 0, lng: 0 });
@@ -169,6 +184,7 @@ export default function Maps(props) {
   const [checkPointY, setCheckPointY] = useState(null);
   const [mapLayers, setMapLayers] = useState([]);
   const [editableFG, setEditableFG] = useState(null);
+  const [allAssets, setAllAssets] = useState([]);
   const locationSelection = [selectPosition?.lat, selectPosition?.lon];
   const purpleOptions = { color: "purple" };
   const blueOptions = { color: "blue" };
@@ -189,10 +205,23 @@ export default function Maps(props) {
     return null;
   };
 
+  const assetList = allAssets.map((asset) => (
+    <FeatureGroup>
+      {/* {console.log("hello world : ", JSON.parse(asset.borderCoordinates))}; */}
+      <Popup>
+        {asset.owner}
+        <br />
+        {asset.appraisedValue}
+        <br />
+      </Popup>
+      <Polygon pathOptions={randomColor()} positions={JSON.parse(asset.borderCoordinates)} />
+    </FeatureGroup>
+  ));
+
   useEffect(() => {
     // console.log("useEffect");
     const CheckDrawnPolygonsOverlap = () => {
-      console.log(100, mapLayers.length);
+      // console.log(100, mapLayers.length);
       if (mapLayers.length > 1) {
         const drawnItems = editableFG._layers;
         var n = mapLayers.length;
@@ -210,9 +239,9 @@ export default function Maps(props) {
             var poly1 = turf.polygon(a);
             var poly2 = turf.polygon(b);
             if (turf.booleanOverlap(poly1, poly2) == true) {
-              console.log(201, mapLayers[j]);
+              // console.log(201, mapLayers[j]);
               const layer = drawnItems[mapLayers[j].id];
-              console.log(44, layer);
+              // console.log(44, layer);
               editableFG.removeLayer(layer);
               mapLayers.splice(j, 1);
               return true;
@@ -230,17 +259,24 @@ export default function Maps(props) {
         icon: "error",
       });
     } else {
-      console.log("m", mapLayers);
+      // console.log("m", mapLayers);
       const sz = mapLayers.length;
       if (sz > 0) {
+        const borderCoordinates = mapLayers[sz - 1].latlngs.map((latlang) => [latlang.lat, latlang.lng]);
+        // console.log("arr ", array);
+        // var borderCoordinates = [];
+        // borderCoordinates.push(mapLayers[sz - 1].latlngs.map(Object.values));
+
+        // console.log("borderCoordinates", borderCoordinates);
         const data = {
           id: mapLayers[sz - 1].id,
-          color: "blue",
-          // size: "20",
-          latlng: mapLayers[sz - 1].lngs,
+
+          borderCoordinates: borderCoordinates,
           owner: "George",
           appraisedValue: "20000",
         };
+        // console.log(data);
+
         fetch("http://localhost:5000/createAsset", {
           method: "POST",
           headers: {
@@ -260,60 +296,17 @@ export default function Maps(props) {
   }, [mapLayers]);
 
   useEffect(() => {
-    checkPointX && checkWhichRegionItLies([checkPointX, checkPointY]);
+    checkPointX && checkWhichRegionItLies([checkPointX, checkPointY], allAssets);
   }, [checkPointX]);
 
-  //   API Endpoints for hyperledger fabric:
-
-  // http://localhost:5000/getAllAssets : GET
-
-  // http://localhost:5000/createAsset : POST
-  // body :
-  // {
-  //     "id":"asset11",
-  //     "color":"red",
-  //     "size":"20",
-  //     "owner":"George",
-  //     "appraisedValue":"20000"
-  // }
-
-  // http://localhost:5000/getAsset : GET
-  // Body:
-  // {
-  //     "id":"asset4"
-  // }
-
-  // http://localhost:5000/updateAsset: PATCH
-  // Body:
-  // same as post
-
-  // http://localhost:5000/transferAsset: PATCH
-  // Body:
-  // {
-  //     "id":"asset10",
-  //     "newOwner":"Jack"
-  // }
   useEffect(() => {
     fetch("http://localhost:5000/getAllAssets")
       .then((response) => response.json())
-      .then((data) => console.log(data));
-    // fetch("http://localhost:5000/getAllAssets", {
-    //   method: "POST", // or 'PUT'
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log("Success:", data);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error:", error);
-    //   });
+      .then((data) => setAllAssets(data));
   }, []);
+  // setAllAssets(data)
   const helper = (event) => {
-    console.log(event.latlng.lat, event.latlng.lng);
+    // console.log(event.latlng.lat, event.latlng.lng);
     setMap({ lat: event.latlng.lat, lng: event.latlng.lng });
   };
 
@@ -325,14 +318,11 @@ export default function Maps(props) {
     const { layerType, layer } = e;
     if (layerType === "polygon") {
       const { _leaflet_id } = layer;
-      console.log(1, layer.getLatLngs()[0]);
-      console.log(2, editableFG);
+      // console.log(1, layer.getLatLngs()[0]);
+      // console.log(2, editableFG);
       const drawnItems = editableFG._layers;
       console.log(3, drawnItems);
-      setMapLayers((layers) => [
-        ...layers,
-        { id: _leaflet_id, latlngs: layer.getLatLngs()[0], owner: "Gokul" },
-      ]);
+      setMapLayers((layers) => [...layers, { id: _leaflet_id, latlngs: layer.getLatLngs()[0], owner: "Gokul" }]);
       console.log(4, layer.getLatLngs());
 
       if (isMarkerInsidePolygon(layer.getLatLngs()[0]) == true) {
@@ -373,14 +363,12 @@ export default function Maps(props) {
     }
     const data = {
       id: _leaflet_id,
-      color: "blue",
-      // size: "20",
-      latlng: drawnItems[_leaflet_id]._latlngs[0],
+      borderCoordinates: drawnItems[_leaflet_id]._latlngs[0],
       owner: "George",
       appraisedValue: "10000",
     };
     fetch("http://localhost:5000/updateAsset", {
-      method: "POST",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
@@ -400,13 +388,7 @@ export default function Maps(props) {
   };
   return (
     <>
-      <MapContainer
-        center={position}
-        zoom={8}
-        style={{ width: "100%", height: "100%" }}
-        ref={mapRef}
-        onClick={helper}
-      >
+      <MapContainer center={position} zoom={8} style={{ width: "100%", height: "100%" }} ref={mapRef} onClick={helper}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=mIMLHCmBJULiiogMvjQF"
@@ -439,51 +421,7 @@ export default function Maps(props) {
           <AssetModal />
         </div>
 
-        <FeatureGroup>
-          <Popup>
-            Gulmohar Colony
-            <br /> Juhu,Mumbai,Maharashtra,400047.
-          </Popup>
-          {/* <Rectangle bounds={rectangle} /> */}
-          <Polygon pathOptions={purpleOptions} positions={polygon} />
-        </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            Saki Naka
-            <br /> Juhu,Mumbai,Maharashtra,400047.
-          </Popup>
-          <Polygon pathOptions={limeOptions} positions={polygon1} />
-        </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            Ghatkopar
-            <br />
-            Mumbai,Maharashtra,400005.
-          </Popup>
-          <Polygon pathOptions={blueOptions} positions={polygon2} />
-        </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            Azad Nagar
-            <br /> Andheri West,Mumbai,Maharashtra,400049.
-          </Popup>
-          <Polygon pathOptions={orangeOptions} positions={polygon3} />
-        </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            DN Nagar
-            <br /> Andheri West,Maharashtra,400003.
-          </Popup>
-          <Polygon pathOptions={yellowOptions} positions={polygon4} />
-        </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            Versova
-            <br />
-            Mumbai,Maharashtra,400001.
-          </Popup>
-          <Polygon pathOptions={blackOptions} positions={polygon5} />
-        </FeatureGroup>
+        {assetList}
 
         <FeatureGroup
           ref={(featureGroupRef) => {
@@ -507,30 +445,6 @@ export default function Maps(props) {
           ) : null}
         </FeatureGroup>
 
-        {/* <FeatureGroup pathOptions={purpleOptions}>
-        <Popup>Popup in FeatureGroup</Popup>
-        <Rectangle bounds={rectangle1} />
-      </FeatureGroup>
-      <FeatureGroup pathOptions={purpleOptions}>
-        <Popup>Popup in FeatureGroup console.log('Hello')</Popup>
-        <Rectangle bounds={rectangle2} />
-      </FeatureGroup>
-      <FeatureGroup pathOptions={purpleOptions}>
-        <Popup>Popup in FeatureGroup</Popup>
-        <Rectangle bounds={rectangle3} />
-      </FeatureGroup>
-      <FeatureGroup pathOptions={purpleOptions}>
-        <Popup>Popup in FeatureGroup</Popup>
-        <Rectangle bounds={rectangle4} />
-      </FeatureGroup>
-      <FeatureGroup pathOptions={purpleOptions}>
-        <Popup>Popup in FeatureGroup</Popup>
-        <Rectangle bounds={rectangle5} />
-      </FeatureGroup>
-      <FeatureGroup pathOptions={purpleOptions}>
-        <Popup>Popup in FeatureGroup</Popup>
-        <Rectangle bounds={rectangle6} />
-      </FeatureGroup> */}
         {selectPosition && (
           <Marker position={locationSelection} icon={icon}>
             <Popup>

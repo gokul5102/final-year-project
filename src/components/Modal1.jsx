@@ -5,7 +5,7 @@ import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import axios from "axios";
+// import axios from "axios";
 import swal from "sweetalert";
 
 const useStyles = makeStyles((theme) => ({
@@ -46,14 +46,13 @@ export default function AssetModal() {
   };
 
   const helper = () => {
-    if (id != null) {
-      const data = { id: id };
-      fetch("http://localhost:5000/getAsset", {
-        method: "GET", // or 'PUT'
+    // console.log("helper ", id);
+    if (id !== null) {
+      fetch(`http://localhost:5000/getAsset/${id}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
       })
         .then((response) => response.json())
         .then((data) => {
@@ -67,12 +66,7 @@ export default function AssetModal() {
 
   return (
     <div>
-      <Button
-        variant="contained"
-        color="secondary"
-        type="button"
-        onClick={handleOpen}
-      >
+      <Button variant="contained" color="secondary" type="button" onClick={handleOpen}>
         Find asset by id
       </Button>
       <Modal
@@ -89,7 +83,7 @@ export default function AssetModal() {
       >
         <Fade in={open}>
           <div className={classes.paper}>
-            <h2 id="transition-modal-title">Enter your address</h2>
+            <h2 id="transition-modal-title">Enter </h2>
             <p id="transition-modal-description">
               <TextField
                 label="Enter Asset ID"

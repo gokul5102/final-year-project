@@ -1,28 +1,18 @@
 import React, { useState, useEffect } from "react";
+
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+
 import axios from "axios";
 import swal from "sweetalert";
-import {
-  polygon,
-  rectangle,
-  polygon1,
-  polygon2,
-  polygon3,
-  polygon4,
-  polygon5,
-  // rectangle1,
-  // rectangle2,
-  // rectangle3,
-  // rectangle4,
-  // rectangle5,
-  // rectangle6,
-} from "./coordinates";
-import checkWhichRegionItLies from "./Maps.js";
+
+import { polygon, rectangle, polygon1, polygon2, polygon3, polygon4, polygon5 } from "../constants/coordinates";
+import checkWhichRegionItLies from "./Maps.jsx";
+
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -93,12 +83,8 @@ export default function TransitionsModal() {
     poly = poly[0];
     if (poly)
       for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-        ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
-          (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
-          pt[0] <
-            ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) /
-              (poly[j][1] - poly[i][1]) +
-              poly[i][0] &&
+        ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) || (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
+          pt[0] < ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) / (poly[j][1] - poly[i][1]) + poly[i][0] &&
           (c = !c);
     return c;
   }
@@ -120,10 +106,7 @@ export default function TransitionsModal() {
       .then(function (response) {
         console.log(response.data?.Results);
         if (response.data) {
-          setCoordinates([
-            response.data?.Results[0].latitude,
-            response.data?.Results[0].longitude,
-          ]);
+          setCoordinates([response.data?.Results[0].latitude, response.data?.Results[0].longitude]);
         }
       })
       .catch(function (error) {
@@ -133,12 +116,7 @@ export default function TransitionsModal() {
 
   return (
     <div>
-      <Button
-        variant="contained"
-        color="secondary"
-        type="button"
-        onClick={handleOpen}
-      >
+      <Button variant="contained" color="secondary" type="button" onClick={handleOpen}>
         Find location
       </Button>
       <Modal

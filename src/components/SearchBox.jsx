@@ -57,9 +57,7 @@ export default function SearchBox(props) {
             onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           />
         </div>
-        <div
-          style={{ display: "flex", alignItems: "center", padding: "0px 20px" }}
-        >
+        <div style={{ display: "flex", alignItems: "center", padding: "0px 20px" }}>
           <Button variant="contained" color="primary" onClick={handleSearch}>
             Search
           </Button>
@@ -77,11 +75,7 @@ export default function SearchBox(props) {
                   }}
                 >
                   <ListItemIcon>
-                    <img
-                      src="./placeholder.png"
-                      alt="Placeholder"
-                      style={{ width: 38, height: 38 }}
-                    />
+                    <img src="./placeholder.png" alt="Placeholder" style={{ width: 38, height: 38 }} />
                   </ListItemIcon>
                   <ListItemText primary={item?.display_name} />
                 </ListItem>
