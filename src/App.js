@@ -1,33 +1,24 @@
 import React, { useState } from "react";
 import SearchBox from "./SearchBox";
 import Maps from "./Maps";
-
+import MapPage from "./MapPage";
 import DrawMap from "./DrawMap";
-
+import HomePage from "./HomePage";
+import SignUp from "./SignUp";
+import RegisterLand from "./RegisterLand";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 function App() {
   const [selectPosition, setSelectPosition] = useState(null);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        width: "100vw",
-        height: "100vh",
-      }}
-    >
-      <div style={{ width: "50vw", height: "100vh" }}>
-        <Maps selectPosition={selectPosition} />
-
-        {/* <DrawMap /> */}
-      </div>
-      <div style={{ border: "2px solid red", width: "50vw" }}>
-        <SearchBox
-          selectPosition={selectPosition}
-          setSelectPosition={setSelectPosition}
-        />
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<HomePage />} />
+        <Route exact path="/map" element={<MapPage />} />
+        <Route exact path="/signup" element={<SignUp />} />
+        <Route exact path="/registerLand" element={<RegisterLand />} />
+      </Routes>
+    </Router>
   );
 }
 
