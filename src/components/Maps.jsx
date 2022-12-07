@@ -4,13 +4,16 @@ import "leaflet/dist/leaflet.css";
 import L, { Mixin } from "leaflet";
 import axios from "axios";
 import { EditControl } from "react-leaflet-draw";
-import TransitionsModal from "./Modal";
+// import TransitionsModal from "./Modal";
 import AssetModal from "./Modal1";
 import randomColor from "randomcolor";
 import swal from "sweetalert";
 import { polygon, rectangle, polygon1, polygon2, polygon3, polygon4, polygon5 } from "../constants/coordinates";
 import * as turf from "@turf/turf";
 import booleanOverlap from "@turf/boolean-overlap";
+import { Button } from "@material-ui/core";
+import { Link } from "react-router-dom";
+
 const icon = L.icon({
   iconUrl: "./placeholder.png",
   iconSize: [38, 38],
@@ -406,7 +409,10 @@ export default function Maps(props) {
             zIndex: "1000",
           }}
         >
-          <TransitionsModal />
+          {/* <TransitionsModal /> */}
+          <Button variant="contained" color="primary" type="button">
+            <Link to="/registerLand">Register Property</Link>
+          </Button>
         </div>
         <div
           style={{
