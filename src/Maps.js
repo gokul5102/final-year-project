@@ -1,21 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  MapContainer,
-  Marker,
-  Popup,
-  TileLayer,
-  useMap,
-  FeatureGroup,
-  Circle,
-  Rectangle,
-  Polygon,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, useMap, FeatureGroup, Circle, Rectangle, Polygon, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L, { Mixin } from "leaflet";
 import axios from "axios";
 import { EditControl } from "react-leaflet-draw";
-import TransitionsModal from "./Modal";
+// import TransitionsModal from "./Modal";
 import AssetModal from "./Modal1";
 import swal from "sweetalert";
 import {
@@ -61,13 +50,9 @@ function ResetCenterView(props) {
 
   useEffect(() => {
     if (selectPosition) {
-      map.setView(
-        L.latLng(selectPosition?.lat, selectPosition?.lon),
-        map.getZoom(),
-        {
-          animate: true,
-        }
-      );
+      map.setView(L.latLng(selectPosition?.lat, selectPosition?.lon), map.getZoom(), {
+        animate: true,
+      });
     }
   }, [selectPosition]);
 
@@ -151,12 +136,8 @@ function isPointInPoly(pt, poly) {
   var winding_no = 0;
   if (poly) {
     for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-      ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
-        (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
-        pt[0] <
-          ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) /
-            (poly[j][1] - poly[i][1]) +
-            poly[i][0] &&
+      ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) || (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
+        pt[0] < ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) / (poly[j][1] - poly[i][1]) + poly[i][0] &&
         (c = !c);
     winding_no += 1;
   } else winding_no -= 1;
@@ -329,10 +310,7 @@ export default function Maps(props) {
       console.log(2, editableFG);
       const drawnItems = editableFG._layers;
       console.log(3, drawnItems);
-      setMapLayers((layers) => [
-        ...layers,
-        { id: _leaflet_id, latlngs: layer.getLatLngs()[0], owner: "Gokul" },
-      ]);
+      setMapLayers((layers) => [...layers, { id: _leaflet_id, latlngs: layer.getLatLngs()[0], owner: "Gokul" }]);
       console.log(4, layer.getLatLngs());
 
       if (isMarkerInsidePolygon(layer.getLatLngs()[0]) == true) {
@@ -400,13 +378,7 @@ export default function Maps(props) {
   };
   return (
     <>
-      <MapContainer
-        center={position}
-        zoom={8}
-        style={{ width: "100%", height: "100%" }}
-        ref={mapRef}
-        onClick={helper}
-      >
+      <MapContainer center={position} zoom={8} style={{ width: "100%", height: "100%" }} ref={mapRef} onClick={helper}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=mIMLHCmBJULiiogMvjQF"
@@ -423,7 +395,7 @@ export default function Maps(props) {
             zIndex: "1000",
           }}
         >
-          <TransitionsModal />
+          {/* <TransitionsModal /> */}
         </div>
         <div
           style={{
