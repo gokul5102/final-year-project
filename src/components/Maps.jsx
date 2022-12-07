@@ -29,7 +29,7 @@ const marker = L.icon({
   iconSize: [38, 38],
 });
 
-const position = [51.505, -0.09];
+const position = [19.321322965264, 72.83067047595];
 
 function ResetCenterView(props) {
   const { selectPosition } = props;
@@ -213,8 +213,9 @@ export default function Maps(props) {
         <br />
         {asset.appraisedValue}
         <br />
+        {console.log(randomColor())}
       </Popup>
-      <Polygon pathOptions={randomColor()} positions={JSON.parse(asset.borderCoordinates)} />
+      <Polygon pathOptions={randomColor} positions={JSON.parse(asset.borderCoordinates)} />
     </FeatureGroup>
   ));
 

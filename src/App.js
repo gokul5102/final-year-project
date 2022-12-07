@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import SearchBox from "./components/SearchBox";
 import Maps from "./components/Maps";
-import DrawMap from "./components/DrawMap";
+// import DrawMap from "./components/DrawMap";
 
 const divStyles = {
   display: "flex",
@@ -18,7 +18,6 @@ function App() {
     <div style={divStyles}>
       <div style={{ width: "50vw", height: "100vh" }}>
         <Maps selectPosition={selectPosition} />
-        {/* <DrawMap /> */}
       </div>
       <div style={{ border: "2px solid red", width: "50vw" }}>
         <SearchBox selectPosition={selectPosition} setSelectPosition={setSelectPosition} />
