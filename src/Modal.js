@@ -93,18 +93,14 @@ export default function TransitionsModal() {
     poly = poly[0];
     if (poly)
       for (var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-        ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) ||
-          (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
-          pt[0] <
-            ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) /
-              (poly[j][1] - poly[i][1]) +
-              poly[i][0] &&
+        ((poly[i][1] <= pt[1] && pt[1] < poly[j][1]) || (poly[j][1] <= pt[1] && pt[1] < poly[i][1])) &&
+          pt[0] < ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) / (poly[j][1] - poly[i][1]) + poly[i][0] &&
           (c = !c);
     return c;
   }
 
   const helper = () => {
-    console.log(address);
+    // console.log(address);
     const options = {
       method: "GET",
       url: "https://address-from-to-latitude-longitude.p.rapidapi.com/geolocationapi",
@@ -118,12 +114,9 @@ export default function TransitionsModal() {
     axios
       .request(options)
       .then(function (response) {
-        console.log(response.data?.Results);
+        // console.log(response.data?.Results);
         if (response.data) {
-          setCoordinates([
-            response.data?.Results[0].latitude,
-            response.data?.Results[0].longitude,
-          ]);
+          setCoordinates([response.data?.Results[0].latitude, response.data?.Results[0].longitude]);
         }
       })
       .catch(function (error) {
@@ -133,12 +126,7 @@ export default function TransitionsModal() {
 
   return (
     <div>
-      <Button
-        variant="contained"
-        color="secondary"
-        type="button"
-        onClick={handleOpen}
-      >
+      <Button variant="contained" color="secondary" type="button" onClick={handleOpen}>
         Find location
       </Button>
       <Modal
@@ -166,7 +154,7 @@ export default function TransitionsModal() {
               />
             </p>
             <Button color="primary" onClick={helper}>
-              Find
+              Locate property
             </Button>
           </div>
         </Fade>
