@@ -5,7 +5,7 @@ import L, { Mixin } from "leaflet";
 import axios from "axios";
 import { EditControl } from "react-leaflet-draw";
 // import TransitionsModal from "./Modal";
-import AssetModal from "./Modal1";
+import AssetModal from "./AssetModal";
 import randomColor from "randomcolor";
 import swal from "sweetalert";
 import { polygon, rectangle, polygon1, polygon2, polygon3, polygon4, polygon5 } from "./coordinates";
@@ -36,6 +36,7 @@ const position = [19.321322965264, 72.83067047595];
 
 function ResetCenterView(props) {
   const { selectPosition } = props;
+  console.log("props", selectPosition);
   const map = useMap();
 
   useEffect(() => {
@@ -47,6 +48,10 @@ function ResetCenterView(props) {
   }, [selectPosition]);
 
   return null;
+}
+
+function findAssetById(position) {
+  ResetCenterView(position);
 }
 
 const mapToArray = (arr = []) => {
@@ -182,7 +187,7 @@ function a(pt, poly) {
 }
 
 export default function Maps(props) {
-  const { selectPosition } = props;
+  const { selectPosition, setSelectPosition } = props;
   const [map, setMap] = useState({ lat: 0, lng: 0 });
   const [checkPointX, setCheckPointX] = useState(null);
   const [checkPointY, setCheckPointY] = useState(null);
@@ -430,7 +435,7 @@ export default function Maps(props) {
             zIndex: "1000",
           }}
         >
-          <AssetModal />
+          <AssetModal findAssetById={findAssetById} />
         </div>
 
         {assetList}
@@ -452,6 +457,7 @@ export default function Maps(props) {
                 circle: false,
                 circlemarker: false,
                 marker: false,
+                // reset,
               }}
             />
           ) : null}

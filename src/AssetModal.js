@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AssetModal() {
+export default function AssetModal({ findAssetById }) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [id, setId] = useState(null);
@@ -44,10 +44,11 @@ export default function AssetModal() {
     setOpen(false);
   };
 
-  const helper = () => {
+  const helper = async () => {
+    var lat, long;
     if (id != null) {
       const data = { id: id };
-      fetch(`http://localhost:5000/getAsset/${id}`, {
+      await fetch(`http://localhost:5000/getAsset/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -56,12 +57,19 @@ export default function AssetModal() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Success:", data);
+          const co_array = JSON.parse(data.borderCoordinates)[0];
+          lat = co_array[0];
+          long = co_array[1];
         })
         .catch((error) => {
           console.error("Error:", error);
         });
     }
-    const dummy = { lat: "19.1196976", lon: "72.8464205" };
+
+    // const position = { selectPosition: { lat: lat, lon: long } };
+    const position = { selectPosition: { lat: "80.0900323232", lon: "78.90394034" } };
+    // console.log("pos : ", position);
+    findAssetById(position);
   };
 
   return (
@@ -83,17 +91,17 @@ export default function AssetModal() {
       >
         <Fade in={open}>
           <div className={classes.paper}>
-            <h2 id="transition-modal-title">Enter your asset ID</h2>
+            <h2 id="transition-modal-title">Enter your property ID</h2>
             <p id="transition-modal-description">
               <TextField
-                label="Enter Asset ID"
+                label="Enter property ID"
                 variant="filled"
                 onChange={(e) => {
                   setId(e.target.value);
                 }}
               />
             </p>
-            <Button color="primary" onClick={helper()}>
+            <Button color="primary" onClick={helper}>
               Find
             </Button>
           </div>
