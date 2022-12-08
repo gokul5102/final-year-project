@@ -1,9 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import axios from "axios";
+import {
+  Grid,
+  Paper,
+  Avatar,
+  TextField,
+  Button,
+  Typography,
+  Link,
+} from "@material-ui/core";
 
+import Navbar from "./Navbar";
+const useStyles = makeStyles((theme) => ({
+  root: {
+    "& > *": {
+      margin: theme.spacing(1),
+      width: "60ch",
+    },
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
 const RegisterLand = () => {
+  const classes = useStyles();
   const [assetId, setAssetId] = useState("");
   const [value, setValue] = useState("");
   const [formValues, setFormValues] = useState([{ lat: "", long: "" }]);
+  const paperStyle = {
+    padding: 20,
+    height: "78vh",
+    width: 600,
+    margin: "75px auto",
+  };
+
+  const btnstyle = { margin: "20px 20px", width: "390px" };
 
   let handleChange = (i, e) => {
     let newFormValues = [...formValues];
@@ -61,48 +96,96 @@ const RegisterLand = () => {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <br />
-        <label>
-          Enter id for the property: &nbsp;&nbsp; <input type="text" value={assetId} onChange={(e) => setAssetId(e.target.value)} />
-        </label>
-
-        <br />
-        <br />
-        <label>
-          Enter appraised value of the property: &nbsp;&nbsp; <input type="text" value={value} onChange={(e) => setValue(e.target.value)} />
-        </label>
-
-        <br />
-        <br />
-
-        {formValues.map((element, index) => (
-          <div className="form-inline" key={index}>
-            <label>Latitude: &nbsp;&nbsp;</label>
-            <input type="text" name="lat" value={element.lat || ""} onChange={(e) => handleChange(index, e)} />
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <label>Longitude: &nbsp;&nbsp;</label>
-            <input type="text" name="long" value={element.long || ""} onChange={(e) => handleChange(index, e)} />
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            {index ? (
-              <button type="button" className="button remove" onClick={() => removeFormFields(index)}>
-                Remove
-              </button>
-            ) : null}
+      <Navbar />
+      <Grid>
+        <Paper elevation={10} style={paperStyle} className={classes.root}>
+          <Grid align="center">
+            <h2>Register Land Form</h2>
+          </Grid>
+          <TextField
+            align="center"
+            id="outlined-basic"
+            label="Property Id"
+            variant="outlined"
+            required
+            value={assetId}
+            onChange={(e) => setAssetId(e.target.value)}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Property's appraised value"
+            variant="outlined"
+            required
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          {formValues.map((element, index) => (
+            <div
+              className="form-inline"
+              key={index}
+              style={{ display: "flex", flexDirection: "row" }}
+            >
+              <TextField
+                id="outlined-basic"
+                label="Latitude"
+                variant="outlined"
+                name="lat"
+                required
+                value={element.lat || ""}
+                onChange={(e) => handleChange(index, e)}
+              />
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              <TextField
+                id="outlined-basic"
+                label="Longitude"
+                variant="outlined"
+                required
+                name="long"
+                value={element.long || ""}
+                onChange={(e) => handleChange(index, e)}
+              />
+              &nbsp;&nbsp;&nbsp;&nbsp;
+              {index ? (
+                <Button
+                  type="button"
+                  color="secondary"
+                  className="button remove"
+                  variant="contained"
+                  style={{ width: "175px", height: "50px" }}
+                  fullWidth
+                  onClick={() => removeFormFields(index)}
+                >
+                  Remove
+                </Button>
+              ) : null}
+            </div>
+          ))}
+          <div className="button-section">
+            <Button
+              type="button"
+              className="button add"
+              color="primary"
+              variant="contained"
+              // style={btnstyle}
+              fullWidth
+              onClick={() => addFormFields()}
+            >
+              Add
+            </Button>
+            &nbsp;&nbsp;
+            <Button
+              className="button submit"
+              type="submit"
+              color="primary"
+              variant="contained"
+              // style={btnstyle}
+              fullWidth
+            >
+              Submit
+            </Button>
           </div>
-        ))}
-        <br />
-        <br />
-        <div className="button-section">
-          <button className="button add" type="button" onClick={() => addFormFields()}>
-            Add
-          </button>
-          &nbsp;&nbsp;
-          <button className="button submit" type="submit">
-            Submit
-          </button>
-        </div>
-      </form>
+        </Paper>
+      </Grid>
     </div>
   );
 };
