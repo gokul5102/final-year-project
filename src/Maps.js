@@ -32,12 +32,6 @@ import {
   polygon10,
   polygon11,
   polygon12,
-  // rectangle1,
-  // rectangle2,
-  // rectangle3,
-  // rectangle4,
-  // rectangle5,
-  // rectangle6,
 } from "./coordinates";
 import * as turf from "@turf/turf";
 import booleanOverlap from "@turf/boolean-overlap";
@@ -97,8 +91,6 @@ const mapToArray = (arr = []) => {
 };
 
 function isMarkerInsidePolygon(poly) {
-  // var inside = false;
-  // console.log("15", poly.map(Object.values));
   var a = [];
   a.push(poly.map(Object.values));
   a[0].push(a[0][0]);
@@ -165,7 +157,6 @@ export function checkWhichRegionItLies(pt) {
     if (
       turf.booleanOverlap(poly1,b) &&
        isPointInPoly(pt, polyArray[place])
-      // turf.booleanPointInPolygon(pt,b)
        ) 
        {
       c = 1;
@@ -480,14 +471,6 @@ export default function Maps(props) {
             Mumbai,Maharashtra,400001
           </Popup>
           <Polygon pathOptions={orangeOptions} positions={polygon9} />
-        </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            E
-            <br />
-            Mumbai,Maharashtra,400001
-          </Popup>
-          <Polygon pathOptions={purpleOptions} positions={polygon10} />
         </FeatureGroup>
 
         <FeatureGroup
