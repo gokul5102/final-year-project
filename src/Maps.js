@@ -489,22 +489,6 @@ export default function Maps(props) {
           </Popup>
           <Polygon pathOptions={purpleOptions} positions={polygon10} />
         </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            F
-            <br />
-            Mumbai,Maharashtra,400001
-          </Popup>
-          <Polygon pathOptions={blackOptions} positions={polygon11} />
-        </FeatureGroup>
-        <FeatureGroup>
-          <Popup>
-            G
-            <br />
-            Mumbai,Maharashtra,400001
-          </Popup>
-          <Polygon pathOptions={limeOptions} positions={polygon12} />
-        </FeatureGroup>
 
         <FeatureGroup
           ref={(featureGroupRef) => {
